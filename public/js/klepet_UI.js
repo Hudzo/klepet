@@ -1,7 +1,9 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
-  if (jeSmesko) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />');
+  var jeVideo = sporocilo.indexOf('https://www.youtube.com/embed/') > -1;
+  if (jeSmesko || jeVideo) {                                            //tukej je za sliko
+    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('png\' /&gt;', 'png\' />').replace(/&lt;img src=\'http:\/\/sandbox\.lavbic\.net\/teaching\/OIS\/gradivo\//g, '<img src=\'http://sandbox.lavbic.net/teaching/OIS/gradivo/').replace(/&lt;iframe class="video"/g, '<iframe class="video"').replace(/allowfullscreen&gt;&lt;\/iframe&gt;/g , 'allowfullscreen></iframe>' );                  
+    console.log(sporocilo);
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -14,6 +16,8 @@ function divElementHtmlTekst(sporocilo) {
 
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
+  
+  dodajVideo(sporocilo);
   sporocilo = dodajSmeske(sporocilo);
   var sistemskoSporocilo;
 
@@ -76,6 +80,7 @@ $(document).ready(function() {
   socket.on('sporocilo', function (sporocilo) {
     var novElement = divElementEnostavniTekst(sporocilo.besedilo);
     $('#sporocila').append(novElement);
+    dodajVideo(sporocilo.besedilo);
   });
   
   socket.on('kanali', function(kanali) {
@@ -131,3 +136,27 @@ function dodajSmeske(vhodnoBesedilo) {
   }
   return vhodnoBesedilo;
 }
+
+
+//za predstavo:
+//<iframe src="demo_iframe.htm" name="iframe_a"></iframe>
+//https://www.youtube.com/watch?v=2G5rfPISIwo
+//{video} == 2G5rfPISIwo
+//spremeni v: <iframe src="https://www.youtube.com/embed/{video}" allowfullscreen></iframe>
+
+function dodajVideo(vhod){
+  /*return vhod.replace(/\b(https?):\/\/www.youtube.com(\S+)\b/gi, function(rezultat){
+    //drugace od slike
+    var array = rezultat.split("=");
+    rezultat = '<iframe class="video" src=\'https://www.youtube.com/embed/'+array[1]+'\' allowfullscreen></iframe>';
+    console.log(rezultat);
+    return rezultat;
+  });*/
+  var ytVideo = vhod.toString().match(/\b(https?):\/\/www.youtube.com(\S+)\b/gi);
+  for(var i in ytVideo){
+    var array = ytVideo[i].split("=");
+    console.log(array[1]);
+    $('#sporocila').append(divElementHtmlTekst('<iframe class="video" src=\'https://www.youtube.com/embed/'+array[1]+'\' allowfullscreen></iframe>'));
+  }
+} 
+
