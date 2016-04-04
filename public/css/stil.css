@@ -59,6 +59,7 @@ a {
 }
 
 
+
 #seznam-uporabnikov div {
   border-bottom: 1px solid #eee;
   cursor: pointer;
@@ -71,5 +72,12 @@ a {
 .slika{
   width: 200px;
   margin-left: 20px;
+}
+
+
+.video{
+  margin-left: 20px;
+  width: 200px;
+  height: 150px;
 }
 
