@@ -1,7 +1,9 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
-  if (jeSmesko) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />');
+  var soPixe = sporocilo.indexOf('<img class="slika" src=\'') > -1;
+  if (jeSmesko || soPixe) {
+    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/&lt;img class="slika"/g, '<img class="slika"').replace(/png\' \/&gt;/g, 'png\' \/\>').replace(/jpg\' \/&gt;/g, 'jpg\' \/\>').replace(/gif\' \/&gt;/g, 'gif\' \/\>').replace(/&lt;img src=\'http:\/\/sandbox\.lavbic\.net\/teaching\/OIS\/gradivo\//g, '<img src=\'http://sandbox.lavbic.net/teaching/OIS/gradivo/');
+    console.log(sporocilo);
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -16,7 +18,9 @@ function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   sporocilo = dodajSmeske(sporocilo);
   var sistemskoSporocilo;
-
+  
+  dodajSlike(sporocilo);
+  
   if (sporocilo.charAt(0) == '/') {
     sistemskoSporocilo = klepetApp.procesirajUkaz(sporocilo);
     if (sistemskoSporocilo) {
@@ -76,6 +80,7 @@ $(document).ready(function() {
   socket.on('sporocilo', function (sporocilo) {
     var novElement = divElementEnostavniTekst(sporocilo.besedilo);
     $('#sporocila').append(novElement);
+    dodajSlike(sporocilo.besedilo);
   });
   
   socket.on('kanali', function(kanali) {
@@ -130,4 +135,18 @@ function dodajSmeske(vhodnoBesedilo) {
       preslikovalnaTabela[smesko] + "' />");
   }
   return vhodnoBesedilo;
+}
+
+function dodajSlike(vhod){
+  /*return vhod.replace(/(https?):\/\/(\S+)(png|jpg|gif)/gi, function(rezultat){
+    rezultat = '<img class="slika" src=\''+rezultat+'\' />';
+    return rezultat;
+  });*/
+  
+  var slike = vhod.toString().match(/\b(https?):\/\/(\S+)(png|jpg|gif)\b/gi);
+  for(var i in slike){
+    if(!slike[i].match(/http:\/\/sandbox\.lavbic\.net\/teaching\/OIS\/gradivo\//)){
+      $('#sporocila').append(divElementHtmlTekst('<img class=\'slika\' src=\"'+ slike[i] + '\">'));
+    }
+  }
 }
