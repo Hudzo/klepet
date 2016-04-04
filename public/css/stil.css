@@ -58,6 +58,7 @@ a {
   font: 10px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+
 #seznam-uporabnikov div {
   border-bottom: 1px solid #eee;
   cursor: pointer;
@@ -65,5 +66,10 @@ a {
 
 #seznam-uporabnikov div:hover {
   background-color: #ddd;
+}
+
+.slika{
+  width: 200px;
+  margin-left: 20px;
 }
 
